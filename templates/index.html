@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Test Bebra">
+  <meta property="og:description" content="Затести этот сайт">
+  <meta property="og:image" content="https://img.fruugo.com/product/9/40/749780409_max.jpg">
+  <title>Test Bebra</title>
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+    input, button {
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <input type="text" id="name" placeholder="Enter your name">
+  <input type="text" id="surname" placeholder="Enter your surname">
+  <input type="text" id="email" placeholder="Enter your email">
+  <button id="createAccount">Create Account</button>
+
+  <button id="info_button">Get Info</button></a>
+  <div id="output"></div>
+
+  <script>
+    const nameInput = document.getElementById('name');
+    const surnameInput = document.getElementById('surname');
+    const emailInput = document.getElementById('email');
+    const createAccountButton = document.getElementById('createAccount');
+    const outputDiv = document.getElementById('output');
+    const infoButton = document.getElementById('info_button');
+
+    const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+
+    infoButton.addEventListener('click', async () => {
+      window.location.href = '{{ url_for('get_info') }}';
+    });
+
+    createAccountButton.addEventListener('click', async () => {
+      const name = nameInput.value;
+      const surname = surnameInput.value;
+      const email = emailInput.value;
+
+      if (!name || !surname || !email) {
+        outputDiv.innerHTML = 'Please fill in all fields.';
+        return;
+      }
+
+      if (!emailPattern.test(email)) {
+        outputDiv.innerHTML = 'Please enter a valid email address.';
+        return;
+      }
+
+      try {
+        const response = await fetch('/create_account', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ name, surname, email })
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+          outputDiv.innerHTML = `Account created. Access Token: ${data.access_token}`;
+        } else {
+          outputDiv.innerHTML = data.error;
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        outputDiv.innerHTML = 'An error occurred while creating the account.';
+      }
+    });
+
+  </script>
+</body>
+</html>
